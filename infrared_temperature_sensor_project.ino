@@ -1,13 +1,16 @@
 // Sources:
 //  - BLE CODE: https://www.youtube.com/watch?v=UMXS0AfGtYc
 
+#include <Adafruit_MLX90614.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include <BLE2902.h>
 
-#define ANALOG_READ_PIN 2
-#define ENABLE_DEBUG false
+#define ENABLE_DEBUG true
+#define I2C_0_SDA 21
+#define I2C_0_SCL 22
+#define I2C_0_FREQ_HZ (100##000)
 
 //uuid's can be generated on https://www.uuidgenerator.net/
 #define SERVICE_UUID        "fca9fd2c-cff4-489e-b40c-4c8983c76156"
@@ -16,6 +19,9 @@
 BLEServer* pServer = NULL;
 BLECharacteristic *pCharacteristic = NULL;
 bool isDeviceConnected = false;
+
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+TwoWire i2c_0 = TwoWire(0);
 
 // This class inherits from BLEServerCallbacks, allowing us to attach custom
 // functions to when a device is connected or disconnected.
@@ -43,6 +49,15 @@ void setup() {
   Serial.println("Serial Comms Up...");
  #endif
 
+ i2c_0.begin(I2C_0_SDA, I2C_0_SCL, I2C_0_FREQ_HZ);
+ if (!mlx.begin(MLX90614_I2CADDR, &i2c_0)) {
+  #if ENABLE_DEBUG
+    Serial.println("Error connecting to MLX sensor.");
+  #endif
+  mlx.readEmissivity();
+  while (1);
+ }
+ 
  // Create the BLE Device
  BLEDevice::init("ESP32");
 
@@ -81,21 +96,19 @@ void loop() {
   // Advertise BLE if disconnected
   if(!isDeviceConnected) {
     pServer->startAdvertising();
-    delay(100); // delay for congestion (phyphox is configured to sample at 10 Hz)
+    delay(80); // delay for congestion (phyphox is configured to sample at 10 Hz)
   }
 
-  // Read Voltage from Pin
-  float voltage = 3.3*analogRead(ANALOG_READ_PIN)/4095;
+  // Read object temperature from sensor
+  float object_temperature_C = ((float)mlx.readObjectTempC());
   
   // Serial notify change in value
-  #if ENABLE_DEBUG
-    Serial.println(voltage);
-  #endif
+  Serial.println(object_temperature_C);
 
   // BLE notify change in value
   if(isDeviceConnected) {
-    pCharacteristic->setValue(voltage);
+    pCharacteristic->setValue(object_temperature_C);
     pCharacteristic->notify();
-    delay(100); // delay for congestion (phyphox is configured to sample at 10 Hz)
+    delay(80); // delay for congestion (phyphox is configured to sample at 10 Hz)
   }
 }
