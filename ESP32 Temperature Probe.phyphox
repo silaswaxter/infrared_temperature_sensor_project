@@ -1,0 +1,37 @@
+<phyphox xmlns="http://phyphox.org/xml" xmlns:editor="http://phyphox.org/editor/xml" version="1.7" editor:version="1.0" locale="en">
+    <title>ESP32 Temperature Probe</title>
+    <category>ESP32 Sensors</category>
+    <description>Temperature probe sensor connected to ESP32 board.</description>
+    <data-containers>
+        <container size="1000" static="false">Output 3</container>
+        <container size="1000" static="false">output</container>
+        <container size="1000" static="false">Output 7</container>
+        <container size="1000" static="false">Output 6</container>
+    </data-containers>
+    <input>
+        <bluetooth editor:uuid="186" editor:posx="100" editor:posy="250" id="ESP32" name="ESP32" uuid="fca9fd2c-cff4-489e-b40c-4c8983c76156" mode="notification" rate="10" subscribeOnStart="true">
+            <output char="49fb2ad1-7a24-4bd0-abdc-ce80a71a4981" conversion="float32LittleEndian" offset="0" length="4">Output 6</output>
+            <output char="49fb2ad1-7a24-4bd0-abdc-ce80a71a4981" conversion="string" extra="time">Output 7</output>
+        </bluetooth>
+    </input>
+    <output>
+    </output>
+    <analysis sleep="0"  onUserInput="false">
+    </analysis>
+    <views>
+        <view label="Temperature Reading">
+            <graph editor:uuid="240" editor:posx="440.359375" editor:posy="222.015625" label="" aspectRatio="1" style="lines" lineWidth="1" color="ff7e22" partialUpdate="false" history="1" labelX="Time" labelY="Temperature (C)" labelZ="" unitX="" unitY="" unitZ="" logX="false" logY="false" logZ="false" xPrecision="3" yPrecision="3" zPrecision="3" scaleMinX="auto" scaleMaxX="auto" scaleMinY="auto" scaleMaxY="auto" scaleMinZ="auto" scaleMaxZ="auto" minX="0" maxX="0" minY="0" maxY="0" minZ="0" maxZ="0"  mapWidth="0"       >
+                <input axis="x">Output 7</input>
+                <input axis="y">Output 6</input>
+            </graph>
+            <value editor:uuid="321" editor:posx="441.359375" editor:posy="480.953125" label="" size="1" precision="2" scientific="false" unit="Voltage" factor="1" >
+                <input>Output 6</input>
+            </value>
+        </view>
+    </views>
+    <export>
+        <set name="Export">
+            <data name="Time (s)">Output 3</data>
+        </set>
+    </export>
+</phyphox>
